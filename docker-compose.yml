@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  cook-book-db:
+    container_name: cook-book-db
+    image: postgres:15.1-alpine
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - cook-book-db:/var/lib/postgresql/data
+    environment:
+      - "POSTGRES_USER=${DB_USER:-cook-book}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD:-cook-book}"
+      - "POSTGRES_DB=${DB_NAME:-cook-book}"
+    networks:
+      - cook-book-network
+
+volumes:
+  cook-book-db:
+    driver: local
+
+networks:
+  cook-book-network:
+    driver: bridge

@@ -20,19 +20,16 @@ repositories {
 extra["testcontainersVersion"] = "1.17.6"
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.flywaydb:flyway-core")
-	implementation("org.springframework:spring-jdbc")
-	compileOnly("org.projectlombok:lombok")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+    compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
-	runtimeOnly("org.postgresql:r2dbc-postgresql")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")
-	testImplementation("org.testcontainers:r2dbc")
 }
 
 dependencyManagement {
