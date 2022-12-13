@@ -1,17 +1,15 @@
 package dev.akif.cookbook.ingredient;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
-@Getter
-@Setter
 @Entity(name = "ingredient")
+@Getter
 @NoArgsConstructor
+@Setter
 @Table(name = "ingredients")
+@ToString
 public class IngredientEntity {
     @Column(name = "id", nullable = false, unique = true)
     @Id

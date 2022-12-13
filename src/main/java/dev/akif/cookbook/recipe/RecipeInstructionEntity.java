@@ -6,12 +6,13 @@ import lombok.*;
 import java.io.Serializable;
 
 @AllArgsConstructor
-@Getter
-@Setter
 @Entity(name = "recipe_instruction")
+@Getter
 @IdClass(RecipeInstructionEntity.RecipeInstructionId.class)
 @NoArgsConstructor
+@Setter
 @Table(name = "recipe_instructions")
+@ToString
 public class RecipeInstructionEntity {
     @Id
     @Column(name = "recipe_id", nullable = false)

@@ -8,6 +8,12 @@ import java.util.List;
 
 @Repository
 public interface RecipeInstructionRepository extends CrudRepository<RecipeInstructionEntity, RecipeInstructionEntity.RecipeInstructionId> {
-    @Query("SELECT ri FROM recipe_instruction ri JOIN FETCH recipe r ON ri.recipeId = r.id WHERE r.id = :recipeId ORDER BY ri.sortOrder, ri.instruction")
+    @Query("""
+           SELECT ri
+           FROM recipe_instruction ri
+           JOIN recipe r ON ri.recipeId = r.id
+           WHERE r.id = :recipeId
+           ORDER BY ri.sortOrder, ri.instruction
+           """)
     List<RecipeInstructionEntity> findByRecipeId(Long recipeId);
 }
