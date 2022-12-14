@@ -83,7 +83,7 @@ Due to time restrictions, I was unable to complete all the required features. Th
 
 * Updating recipes
 * Deleting recipes
-* Unit and integration tests covering cases
+* Unit and integration tests covering more cases
 
 ## Contributing
 
