@@ -1,13 +1,13 @@
 package dev.akif.cookbook.recipe;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface RecipeIngredientRepository extends CrudRepository<RecipeIngredientEntity, RecipeIngredientEntity.RecipeIngredientId> {
+public interface RecipeIngredientRepository extends ListCrudRepository<RecipeIngredientEntity, RecipeIngredientEntity.RecipeIngredientId> {
     @Query("""
            SELECT ri
            FROM recipe_ingredient ri

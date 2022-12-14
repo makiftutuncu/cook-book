@@ -1,11 +1,11 @@
 package dev.akif.cookbook.recipe;
 
+import dev.akif.cookbook.ingredient.CreateMeasuredIngredient;
 import dev.akif.cookbook.ingredient.IngredientEntity;
 import dev.akif.cookbook.ingredient.IngredientRepository;
 import dev.akif.cookbook.ingredient.MeasuredIngredient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,8 +28,7 @@ public class RecipeService {
         final var getAllRecipes = Flux.fromIterable(
                 recipes.findAllBy(
                         searchParameters.name(),
-                        searchParameters.numberOfServings(),
-                        Pageable.unpaged()
+                        searchParameters.numberOfServings()
                 )
         );
 
@@ -59,6 +58,36 @@ public class RecipeService {
                 return getIngredients.flatMap(ingredients -> toRecipe(recipe, recipeIngredients, ingredients, instructions, searchParameters));
             });
         });
+    }
+
+    public Mono<Recipe> create(String name,
+                               int numberOfServings,
+                               Map<String, List<CreateMeasuredIngredient>> ingredients,
+                               List<String> instructions) {
+        log.info("Creating a new recipe {} for {} servings", name, numberOfServings);
+
+        return Mono.fromCallable(() -> {
+            log.info("Creating recipe entity with name {} and numberOfServings {}", name, numberOfServings);
+            return recipes.save(new RecipeEntity(null, name, numberOfServings));
+        }).flatMap(recipe ->
+                createIngredients(ingredients).flatMap(ingredientLookup ->
+                        Mono.zip(
+                                createRecipeIngredients(recipe, ingredientLookup, ingredients),
+                                createRecipeInstructions(recipe, instructions)
+                        ).map(tuple -> {
+                            final var recipeIngredients = tuple.getT1();
+                            final var recipeInstructions = tuple.getT2();
+
+                            return new Recipe(
+                                    recipe.getId(),
+                                    recipe.getName(),
+                                    recipe.getNumberOfServings(),
+                                    groupIngredients(recipeIngredients, ingredientLookup.values().stream().toList()),
+                                    recipeInstructions.stream().map(RecipeInstructionEntity::getInstruction).toList()
+                            );
+                        })
+                )
+        );
     }
 
     private Mono<Recipe> toRecipe(
@@ -163,5 +192,91 @@ public class RecipeService {
                 .stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
+    }
+
+    private Mono<Map<String, IngredientEntity>> createIngredients(Map<String, List<CreateMeasuredIngredient>> ingredients) {
+        return Mono.just(new HashMap<String, IngredientEntity>()).flatMap(ingredientLookup -> {
+            final var allIngredientNames = ingredients
+                    .values()
+                    .stream()
+                    .flatMap(l -> l.stream().map(CreateMeasuredIngredient::name))
+                    .collect(Collectors.toSet());
+
+
+            return Mono.fromCallable(() -> {
+                log.debug("Finding existing ingredients for names {}", allIngredientNames);
+                return RecipeService.this.ingredients.findAllByNameIn(allIngredientNames);
+            }).flatMap(existingIngredients -> {
+                existingIngredients.forEach(e -> ingredientLookup.put(e.getName(), e));
+
+                return Mono.fromCallable(() -> {
+                    log.debug("Creating non-existing ingredients for names {}", allIngredientNames);
+                    return ingredients
+                            .values()
+                            .stream()
+                            .flatMap(l -> l.stream().filter(i -> !ingredientLookup.containsKey(i.name())))
+                            .collect(Collectors.toSet())
+                            .stream()
+                            .map(i -> new IngredientEntity(null, i.name(), i.vegetarian()))
+                            .toList();
+                }).map(ingredientsToCreate -> {
+                    RecipeService.this.ingredients.saveAll(ingredientsToCreate).forEach(i -> ingredientLookup.put(i.getName(), i));
+                    return ingredientLookup;
+                });
+            });
+        });
+    }
+
+    private Mono<List<RecipeIngredientEntity>> createRecipeIngredients(
+            RecipeEntity recipe,
+            Map<String, IngredientEntity> ingredientLookup,
+            Map<String, List<CreateMeasuredIngredient>> ingredients
+    ) {
+        final var recipeIngredientsToCreate = ingredients
+                .entrySet()
+                .stream()
+                .flatMap(e -> {
+                    final var label = e.getKey();
+                    final var measuredIngredients = e.getValue();
+                    final var list = new ArrayList<RecipeIngredientEntity>();
+
+                    var sortOrder = 0;
+                    for (var entry : measuredIngredients) {
+                        final var recipeIngredientEntity = new RecipeIngredientEntity(
+                                recipe.getId(),
+                                ingredientLookup.get(entry.name()).getId(),
+                                label,
+                                entry.value(),
+                                entry.unit(),
+                                sortOrder
+                        );
+
+                        list.add(recipeIngredientEntity);
+                        sortOrder++;
+                    }
+
+                    return list.stream();
+                })
+                .toList();
+
+        return Mono.fromCallable(() -> {
+            log.debug("Creating recipe ingredients for recipe {}", recipe.getId());
+            return recipeIngredients.saveAll(recipeIngredientsToCreate);
+        });
+    }
+
+    private Mono<List<RecipeInstructionEntity>> createRecipeInstructions(RecipeEntity recipe, List<String> instructions) {
+        final var recipeInstructionToCreate = new ArrayList<RecipeInstructionEntity>();
+        var sortOrder = 0;
+        for (var instruction : instructions) {
+            final var recipeInstructionEntity = new RecipeInstructionEntity(recipe.getId(), sortOrder, instruction);
+            recipeInstructionToCreate.add(recipeInstructionEntity);
+            sortOrder++;
+        }
+
+        return Mono.fromCallable(() -> {
+            log.debug("Creating recipe instructions for recipe {}", recipe.getId());
+            return recipeInstructions.saveAll(recipeInstructionToCreate);
+        });
     }
 }

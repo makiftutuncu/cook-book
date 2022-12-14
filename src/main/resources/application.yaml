@@ -20,3 +20,7 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+
+springdoc:
+  swagger-ui:
+    path: /docs

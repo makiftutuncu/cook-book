@@ -3,13 +3,13 @@ package dev.akif.cookbook.api;
 import dev.akif.cookbook.recipe.RecipeService;
 import dev.akif.cookbook.recipe.SearchParameters;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -36,5 +36,33 @@ public class RecipeController {
         );
 
         return recipes.getAll(searchParameters).map(RecipeDTO::from);
+    }
+
+    @PostMapping
+    public Mono<RecipeDTO> create(@RequestBody CreateRecipeDTO createRecipe) {
+        final var ingredients = createRecipe
+                .ingredients()
+                .entrySet()
+                .stream()
+                .map(e ->
+                        Map.entry(
+                                e.getKey(),
+                                e
+                                        .getValue()
+                                        .stream()
+                                        .map(MeasuredIngredientDTO::toCreateMeasuredIngredient)
+                                        .toList()
+                        )
+                )
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return recipes
+                .create(
+                        createRecipe.name(),
+                        createRecipe.numberOfServings(),
+                        ingredients,
+                        createRecipe.instructions()
+                )
+                .map(RecipeDTO::from);
     }
 }
