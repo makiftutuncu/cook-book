@@ -3,6 +3,7 @@ package dev.akif.cookbook.api;
 import dev.akif.cookbook.recipe.RecipeService;
 import dev.akif.cookbook.recipe.SearchParameters;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -39,6 +40,7 @@ public class RecipeController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<RecipeDTO> create(@RequestBody CreateRecipeDTO createRecipe) {
         final var ingredients = createRecipe
                 .ingredients()
