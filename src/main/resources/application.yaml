@@ -1,26 +1,22 @@
+db:
+  host: ${DB_HOST:localhost}
+  port: ${DB_PORT:5432}
+  name: ${DB_NAME:cook-book}
+  user: ${DB_USER:cook-book}
+  pass: ${DB_PASS:cook-book}
+
 logging:
   level:
     root: INFO
     dev.akif.cookbook: DEBUG
 
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:cook-book}
-    username: ${DB_USER:cook-book}
-    password: ${DB_PASSWORD:cook-book}
-
   flyway:
-    url: ${spring.datasource.url}
-    user: ${spring.datasource.username}
-    password: ${spring.datasource.password}
+    url: jdbc:postgresql://${db.host}:${db.port}/${db.name}
+    user: ${db.user}
+    password: ${db.pass}
 
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-
-springdoc:
-  swagger-ui:
-    path: /docs
+  r2dbc:
+    url: r2dbc:postgresql://${db.host}:${db.port}/${db.name}
+    username: ${db.user}
+    password: ${db.pass}
