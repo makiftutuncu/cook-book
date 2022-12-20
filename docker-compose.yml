@@ -10,7 +10,7 @@ services:
       - cook-book-db:/var/lib/postgresql/data
     environment:
       - "POSTGRES_USER=${DB_USER:-cook-book}"
-      - "POSTGRES_PASSWORD=${DB_PASSWORD:-cook-book}"
+      - "POSTGRES_PASSWORD=${DB_PASS:-cook-book}"
       - "POSTGRES_DB=${DB_NAME:-cook-book}"
     networks:
       - cook-book-network

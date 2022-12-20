@@ -35,7 +35,7 @@ You should be able to run the application out-of-the-box without any further con
 | DB_PORT       | Integer   | Port of application database         | No, defaults to `5432`      |
 | DB_NAME       | String    | Name of application database         | No, defaults to `cook-book` |
 | DB_USER       | String    | User of application database         | No, defaults to `cook-book` |
-| DB_PASSWORD   | String    | Password of application database     | No, defaults to `cook-book` |
+| DB_PASS       | String    | Password of application database     | No, defaults to `cook-book` |
 
 ## Development and Running
 

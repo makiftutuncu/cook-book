@@ -1,6 +1,6 @@
-package dev.akif.cookbook.ingredient;
+package dev.akif.cookbook.ingredient
 
-public enum Unit {
+enum class Unit {
     QUANTITY,
     GRAMS,
     MILLILITERS,
