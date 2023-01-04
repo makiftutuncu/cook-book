@@ -6,10 +6,8 @@
 2. [Configuration](#configuration)
 3. [Development and Running](#development-and-running)
 4. [Docker](#docker)
-5. [API](#api-docs)
-6. [Contributing](#contributing)
-7. [Notes](#notes)
-8. [License](#license)
+5. [Contributing](#contributing)
+6. [License](#license)
 
 ## Introduction
 
@@ -18,12 +16,11 @@ Cook Book is a web backend application. It provides APIs to view, query and mana
 It uses
 
 * Spring Boot 3 with WebFlux
-* Java 17
+* Kotlin with coroutines
 * PostgreSQL for database
 * Flyway to manage DB schemas
-* Spring Data JPA to database access
+* R2DBC for database access
 * JUnit 5 for testing
-* SpringDoc for API documentation
 
 ## Configuration
 
@@ -72,18 +69,6 @@ DB_PORT=1234 docker-compose up -d
 ```
 
 you'll be able to access the application the database at `jdbc:postgresql://localhost:1234/cook-book`.
-
-## API Docs
-
-Cook Book provide OpenAPI documentation and a Swagger UI to browse them. After running the application, you may go to [`/docs`](http://localhost:8080/docs) to see the documentation.
-
-## Notes
-
-Due to time restrictions, I was unable to complete all the required features. The following are missing:
-
-* Updating recipes
-* Deleting recipes
-* Unit and integration tests covering more cases
 
 ## Contributing
 
