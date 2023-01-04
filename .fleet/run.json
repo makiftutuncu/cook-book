@@ -1,0 +1,37 @@
+{
+    "configurations": [
+        {
+            "name": "set-up-db",
+            "type": "docker-compose-up",
+            "files": [
+                "docker-compose.yml"
+            ],
+            "services": [
+                "cook-book-db"
+            ]
+        },
+        {
+            "type": "gradle",
+            "name": "cook-book",
+            "tasks": [
+                "bootRun"
+            ],
+            "args": [
+                "--console=plain"
+            ],
+            "dependsOn": [
+                "set-up-db"
+            ]
+        },
+        {
+            "name": "test",
+            "type": "gradle",
+            "tasks": [
+                "test"
+            ],
+            "args": [
+                "--console=plain"
+            ]
+        }
+    ]
+}

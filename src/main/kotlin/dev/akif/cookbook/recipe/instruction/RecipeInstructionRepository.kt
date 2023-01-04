@@ -14,4 +14,6 @@ interface RecipeInstructionRepository: CoroutineCrudRepository<RecipeInstruction
            ORDER BY ri.sort_order, ri.instruction"""
     )
     fun findByRecipeId(recipeId: Long): Flow<RecipeInstructionEntity>
+
+    fun deleteAllByRecipeId(recipeId: Long): Flow<Unit>
 }

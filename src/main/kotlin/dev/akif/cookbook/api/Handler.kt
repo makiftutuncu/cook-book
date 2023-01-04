@@ -42,4 +42,14 @@ class Handler(private val recipes: RecipeService) {
             .json()
             .bodyValueAndAwait(RecipeDTO.from(recipes.create(createRecipe)))
     }
+
+    suspend fun update(request: ServerRequest): ServerResponse {
+        val id = request.pathVariable("id").toLong()
+        val updateRecipe = request.bodyToMono(UpdateRecipeDTO::class.java).map { it.toUpdateRecipe() }.awaitSingle()
+
+        return ServerResponse
+            .ok()
+            .json()
+            .bodyValueAndAwait(RecipeDTO.from(recipes.update(id, updateRecipe)))
+    }
 }

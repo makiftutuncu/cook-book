@@ -1,11 +1,12 @@
 package dev.akif.cookbook.api
 
+import dev.akif.cookbook.*
 import dev.akif.cookbook.ingredient.IngredientRepository
-import dev.akif.cookbook.ingredient.Unit
 import dev.akif.cookbook.recipe.RecipeRepository
 import dev.akif.cookbook.recipe.ingredient.RecipeIngredientRepository
 import dev.akif.cookbook.recipe.instruction.RecipeInstructionRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.MethodOrderer
@@ -24,7 +25,6 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import reactor.core.publisher.Mono
-
 
 @ExperimentalCoroutinesApi
 @AutoConfigureWebTestClient
@@ -50,75 +50,6 @@ class RecipeControllerTests(
             registry.add("spring.r2dbc.password") { postgresql.password }
         }
     }
-
-    private val pancakesRecipeDTO = RecipeDTO(
-        1L,
-        "Pancakes",
-        4,
-        mapOf(
-            "For Batter" to listOf(
-                MeasuredIngredientDTO("Egg", true, 2.0, Unit.QUANTITY),
-                MeasuredIngredientDTO("Sugar", true, 0.5, Unit.CUPS),
-                MeasuredIngredientDTO("Flour", true, 2.0, Unit.CUPS),
-                MeasuredIngredientDTO("Milk", true, 1.5, Unit.CUPS),
-                MeasuredIngredientDTO("Oil", true, 2.0, Unit.SPOONS),
-                MeasuredIngredientDTO("Baking Powder", true, 1.0, Unit.PACKS),
-                MeasuredIngredientDTO("Vanilla", true, 1.0, Unit.PACKS),
-                MeasuredIngredientDTO("Salt", true, 1.0, Unit.PINCHES)
-            ),
-            "For Cooking" to listOf(
-                MeasuredIngredientDTO("Oil", true, 2.0, Unit.SPOONS)
-            ),
-            "For Serving" to listOf(
-                MeasuredIngredientDTO("Honey", true, 3.0, Unit.SPOONS)
-            )
-        ), listOf(
-            "Break eggs and add sugar.",
-            "Mix until creamy.",
-            "Add oil and milk and continue mixing.",
-            "Add flour, baking powder, vanilla and salt.",
-            "Mix until smooth.",
-            "Slightly oil a pan and heat. Reduce heat once pan is hot.",
-            "Pour mixture into pan.",
-            "Cook until bubbles appear on top and flip to cook the other side.",
-            "Cook all of the batter the same way.",
-            "Pour honey on top and serve."
-        )
-    )
-
-    private val createPancakesDTO = CreateRecipeDTO(
-        "Pancakes",
-        4,
-        mapOf(
-            "For Batter" to listOf(
-                MeasuredIngredientDTO("Egg", true, 2.0, Unit.QUANTITY),
-                MeasuredIngredientDTO("Sugar", true, 0.5, Unit.CUPS),
-                MeasuredIngredientDTO("Flour", true, 2.0, Unit.CUPS),
-                MeasuredIngredientDTO("Milk", true, 1.5, Unit.CUPS),
-                MeasuredIngredientDTO("Oil", true, 2.0, Unit.SPOONS),
-                MeasuredIngredientDTO("Baking Powder", true, 1.0, Unit.PACKS),
-                MeasuredIngredientDTO("Vanilla", true, 1.0, Unit.PACKS),
-                MeasuredIngredientDTO("Salt", true, 1.0, Unit.PINCHES)
-            ),
-            "For Cooking" to listOf(
-                MeasuredIngredientDTO("Oil", true, 2.0, Unit.SPOONS)
-            ),
-            "For Serving" to listOf(
-                MeasuredIngredientDTO("Honey", true, 3.0, Unit.SPOONS)
-            )
-        ), listOf(
-            "Break eggs and add sugar.",
-            "Mix until creamy.",
-            "Add oil and milk and continue mixing.",
-            "Add flour, baking powder, vanilla and salt.",
-            "Mix until smooth.",
-            "Slightly oil a pan and heat. Reduce heat once pan is hot.",
-            "Pour mixture into pan.",
-            "Cook until bubbles appear on top and flip to cook the other side.",
-            "Cook all of the batter the same way.",
-            "Pour honey on top and serve."
-        )
-    )
 
     @Order(1)
     @Test
@@ -151,5 +82,20 @@ class RecipeControllerTests(
             .expectStatus().isCreated
             .expectBody(RecipeDTO::class.java)
             .value { recipe: RecipeDTO -> assertEquals(pancakesRecipeDTO, recipe.copy(id = pancakesRecipeDTO.id)) }
+    }
+
+    @Order(3)
+    @Test
+    fun updatingRecipe() = runTest {
+        val recipeId = recipes.findAllBy(null, null).first().id!!
+
+        testClient.put()
+            .uri("/recipes/$recipeId")
+            .body(Mono.just(updatePancakesDTO), UpdateRecipeDTO::class.java)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(RecipeDTO::class.java)
+            .value { recipe: RecipeDTO -> assertEquals(updatedPancakesRecipeDTO.copy(id = recipeId), recipe) }
     }
 }

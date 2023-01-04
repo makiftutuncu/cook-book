@@ -3,6 +3,7 @@ package dev.akif.cookbook.api
 import dev.akif.cookbook.ingredient.CreateMeasuredIngredient
 import dev.akif.cookbook.ingredient.MeasuredIngredient
 import dev.akif.cookbook.ingredient.Unit
+import dev.akif.cookbook.ingredient.UpdateMeasuredIngredient
 
 data class MeasuredIngredientDTO(
     val name: String,
@@ -12,6 +13,14 @@ data class MeasuredIngredientDTO(
 ) {
     fun toCreateMeasuredIngredient(): CreateMeasuredIngredient =
         CreateMeasuredIngredient(
+            name = name,
+            vegetarian = vegetarian,
+            value = value,
+            unit = unit
+        )
+
+    fun toUpdateMeasuredIngredient(): UpdateMeasuredIngredient =
+        UpdateMeasuredIngredient(
             name = name,
             vegetarian = vegetarian,
             value = value,

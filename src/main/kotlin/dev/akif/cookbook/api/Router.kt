@@ -13,5 +13,6 @@ class Router {
         coRouter {
             GET("/recipes", handler::getAll)
             POST("/recipes", handler::create)
+            PUT("/recipes/{id}", handler::update)
         }
 }
