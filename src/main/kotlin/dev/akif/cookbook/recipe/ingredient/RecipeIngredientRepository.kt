@@ -15,5 +15,5 @@ interface RecipeIngredientRepository: CoroutineCrudRepository<RecipeIngredientEn
     )
     fun findByRecipeId(recipeId: Long): Flow<RecipeIngredientEntity>
 
-    fun deleteAllByRecipeId(recipeId: Long): Flow<Unit>
+    suspend fun deleteAllByRecipeId(recipeId: Long)
 }

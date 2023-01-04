@@ -7,8 +7,9 @@ import dev.akif.cookbook.recipe.ingredient.RecipeIngredientRepository
 import dev.akif.cookbook.recipe.instruction.RecipeInstructionRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -97,5 +98,20 @@ class RecipeControllerTests(
             .expectStatus().isOk
             .expectBody(RecipeDTO::class.java)
             .value { recipe: RecipeDTO -> assertEquals(updatedPancakesRecipeDTO.copy(id = recipeId), recipe) }
+    }
+
+    @Order(4)
+    @Test
+    fun deletingRecipe() = runTest {
+        val recipeId = recipes.findAllBy(null, null).first().id!!
+
+        testClient.delete()
+            .uri("/recipes/$recipeId")
+            .exchange()
+            .expectStatus().isOk
+
+        assertTrue(recipeIngredients.findByRecipeId(recipeId).toList().isEmpty())
+        assertTrue(recipeInstructions.findByRecipeId(recipeId).toList().isEmpty())
+        assertNull(recipes.findById(recipeId))
     }
 }

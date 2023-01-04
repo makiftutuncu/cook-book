@@ -52,4 +52,13 @@ class Handler(private val recipes: RecipeService) {
             .json()
             .bodyValueAndAwait(RecipeDTO.from(recipes.update(id, updateRecipe)))
     }
+
+    suspend fun delete(request: ServerRequest): ServerResponse {
+        val id = request.pathVariable("id").toLong()
+
+        return ServerResponse
+            .ok()
+            .json()
+            .bodyValueAndAwait(recipes.delete(id))
+    }
 }

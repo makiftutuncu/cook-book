@@ -14,5 +14,6 @@ class Router {
             GET("/recipes", handler::getAll)
             POST("/recipes", handler::create)
             PUT("/recipes/{id}", handler::update)
+            DELETE("/recipes/{id}", handler::delete)
         }
 }

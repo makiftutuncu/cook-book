@@ -79,6 +79,17 @@ class RecipeService(
         return toRecipe(recipe, ingredients, recipeIngredients, recipeInstructions)
     }
 
+    suspend fun delete(id: Long) {
+        log.debug("Deleting existing recipe ingredients for recipe $id")
+        recipeIngredients.deleteAllByRecipeId(id)
+
+        log.debug("Deleting existing recipe instructions for recipe $id")
+        recipeInstructions.deleteAllByRecipeId(id)
+
+        log.info("Deleting recipe $id")
+        recipes.deleteById(id)
+    }
+
     private fun filterRecipe(
         recipeEntity: RecipeEntity,
         ingredients: List<IngredientEntity>,
@@ -175,7 +186,7 @@ class RecipeService(
         val ingredientsByName = existingIngredients + createdIngredients
 
         log.debug("Deleting existing recipe ingredients for recipe $recipeId")
-        recipeIngredients.deleteAllByRecipeId(recipeId).singleOrNull()
+        recipeIngredients.deleteAllByRecipeId(recipeId)
 
         log.debug("Saving recipe ingredients for recipe $recipeId")
         val recipeIngredients = recipeIngredients.saveAll(
@@ -198,7 +209,7 @@ class RecipeService(
 
     private suspend fun saveInstructions(recipeId: Long, givenInstructions: List<String>): List<RecipeInstructionEntity> {
         log.debug("Deleting existing recipe instructions for recipe $recipeId")
-        recipeInstructions.deleteAllByRecipeId(recipeId).singleOrNull()
+        recipeInstructions.deleteAllByRecipeId(recipeId)
 
         log.debug("Saving new recipe instructions for recipe $recipeId")
         return recipeInstructions.saveAll(
